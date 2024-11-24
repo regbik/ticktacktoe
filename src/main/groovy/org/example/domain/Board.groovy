@@ -31,7 +31,13 @@ class Board {
         return board[row][col]
     }
 
-    boolean setValue(int row, int col, PlayingPiece piece) {
+    boolean setValue(Integer row, Integer col, PlayingPiece piece) {
+        if (row > size - 1 || col > size - 1) {
+            return false
+        }
+        if (row == null || col == null ) {
+            return false
+        }
         PlayingPiece currValue = getValue(row, col)
         if (currValue != null)
             return false

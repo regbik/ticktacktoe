@@ -37,14 +37,17 @@ class TicTacToeGame {
 
             Player currentPlayer = players.removeFirst()
             PlayingPiece currentPiece = currentPlayer.getPiece()
+            boolean valueInserted = false
 
             print("$currentPlayer.name (piece ${currentPiece.type.toString()}) >> Enter position of your piece: ")
             List<String> input = scanner.nextLine().tokenize(',')
-            int row = (input.first()).toInteger()
-            int col = (input.last()).toInteger()
-            boolean valueInserted = gameBoard.setValue(row, col, currentPiece)
+            if (input.size() == 2) {
+                Integer row = (input.first()).toInteger()
+                Integer col = (input.last()).toInteger()
+                valueInserted = gameBoard.setValue(row, col, currentPiece)
+            }
             if (!valueInserted) {
-                println("Invalid position selected. Please select an empty position for your piece!")
+                println("Invalid position selected! Kindly enter a valid position.")
                 players.addFirst(currentPlayer)
                 continue
             }
@@ -81,7 +84,7 @@ class TicTacToeGame {
                     bwdDiagonal.add(gameBoard.getValue(row, col))
                 }
             }
-            if ((rowPieces.findAll {it != null}.size() == 3 && rowPieces.findAll {it != null}.unique().size() == 1) || (colPieces.findAll {it != null}.size() == 3 && colPieces.findAll {it != null}.unique().size() == 1)) {
+            if ((rowPieces.findAll { it != null }.size() == 3 && rowPieces.findAll { it != null }.unique().size() == 1) || (colPieces.findAll { it != null }.size() == 3 && colPieces.findAll { it != null }.unique().size() == 1)) {
                 noWinner = false
                 return noWinner
             } else {
