@@ -35,72 +35,72 @@ class TicTacToeGame {
         while (noWinner) {
             gameBoard.printBoard()
 
-            Player currentPlayer = players.removeFirst()
+            Player currentPlayer = players.getFirst()
             PlayingPiece currentPiece = currentPlayer.getPiece()
+
             boolean valueInserted = false
+            Integer row, col
 
             print("$currentPlayer.name (piece ${currentPiece.type.toString()}) >> Enter position of your piece: ")
             List<String> input = scanner.nextLine().tokenize(',')
             if (input.size() == 2) {
-                Integer row = (input.first()).toInteger()
-                Integer col = (input.last()).toInteger()
+                try {
+                    row = (input.first().trim()).toInteger()
+                    col = (input.last().trim()).toInteger()
+                } catch (NumberFormatException ignored) {
+                    println("Invalid position selected! Kindly enter a valid position.")
+                    continue
+                }
                 valueInserted = gameBoard.setValue(row, col, currentPiece)
             }
             if (!valueInserted) {
                 println("Invalid position selected! Kindly enter a valid position.")
-                players.addFirst(currentPlayer)
                 continue
             }
-            players.addLast(currentPlayer)
-            noWinner = checkForWinner(currentPlayer, currentPiece)
+            players.addLast(players.removeFirst())
+            noWinner = checkForWinner(row, col)
 
             if (!noWinner) {
+                gameBoard.printBoard()
                 return ("${currentPlayer.name.toUpperCase()} WINS !!")
             }
 
             if (!spaceAvailableInBoard()) {
+                gameBoard.printBoard()
                 return "No Winner, Hence A Tie"
             }
         }
     }
 
-    private boolean checkForWinner(Player player, PlayingPiece piece) {
+    private boolean checkForWinner(Integer currRow, Integer currCol) {
         boolean noWinner = true
-        boolean boardSizeIsEven = isEven(gameBoard.size)
+        Integer boardSize = gameBoard.size
 
-        //check in the rows/columns
         List<PlayingPiece> rowPieces = []
         List<PlayingPiece> colPieces = []
         List<PlayingPiece> fwdDiagonal = []
         List<PlayingPiece> bwdDiagonal = []
-        for (int row = 0; row < gameBoard.getSize(); row++) {
-            for (int col = 0; col < gameBoard.getSize(); col++) {
-                rowPieces.add(gameBoard.getValue(row, col))
-                colPieces.add(gameBoard.getValue(col, row))
-                if (row == col) {
-                    fwdDiagonal.add(gameBoard.getValue(row, col))
-                }
-                if ((!boardSizeIsEven && isEven(row + col)) || (boardSizeIsEven && !isEven(row + col))) {
-                    bwdDiagonal.add(gameBoard.getValue(row, col))
-                }
+
+        for (int i = 0; i < gameBoard.size; i++) {
+            gameBoard.getValue(currRow, i) == null ?: rowPieces.add(gameBoard.getValue(currRow, i))
+            gameBoard.getValue(i, currCol) == null ?: colPieces.add(gameBoard.getValue(i, currCol))
+            if (currRow == currCol) {
+                gameBoard.getValue(i, i) == null ?: fwdDiagonal.add(gameBoard.getValue(i, i))
             }
-            if ((rowPieces.findAll { it != null }.size() == 3 && rowPieces.findAll { it != null }.unique().size() == 1) || (colPieces.findAll { it != null }.size() == 3 && colPieces.findAll { it != null }.unique().size() == 1)) {
-                noWinner = false
-                return noWinner
-            } else {
-                rowPieces = []
-                colPieces = []
+            if (currRow + currCol == boardSize - 1) {
+                gameBoard.getValue(i, (boardSize - 1) - i) == null ?: bwdDiagonal.add(gameBoard.getValue(i, (boardSize - 1) - i))
             }
         }
-        if ((fwdDiagonal.size() == 3 && fwdDiagonal.unique().size() == 1) || (bwdDiagonal.size() == 3 && bwdDiagonal.unique().size() == 1)) {
+
+        if ((rowPieces.size() == boardSize && rowPieces.unique().size() == 1) ||
+                (colPieces.size() == boardSize && colPieces.unique().size() == 1) ||
+                (fwdDiagonal.size() == boardSize && fwdDiagonal.unique().size() == 1) ||
+                (bwdDiagonal.size() == boardSize && bwdDiagonal.unique().size() == 1)) {
             noWinner = false
             return noWinner
         }
-        return noWinner
-    }
 
-    private static boolean isEven(int value) {
-        return (value % 2 == 0)
+        return noWinner
     }
 
     private boolean spaceAvailableInBoard() {
